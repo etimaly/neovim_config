@@ -1,65 +1,88 @@
 local lang_setup = require("config.languages")
 
+-- 1. SERVER SETTINGS
+local server_settings = {
+  pyright = {
+    settings = {
+      python = {
+        analysis = { typeCheckingMode = "off", ignore = { "*" } },
+      },
+    },
+  },
+  ruff = {
+    on_attach = function(client)
+      client.server_capabilities.hoverProvider = false
+    end,
+  },
+  clangd = {
+    capabilities = { offsetEncoding = { "utf-16" } },
+  },
+}
+
+-- 2. THE PLUGIN
 return {
-	"williamboman/mason.nvim",
-	dependencies = {
-		"williamboman/mason-lspconfig.nvim",
-		"WhoIsSethDaniel/mason-tool-installer.nvim",
-		"neovim/nvim-lspconfig", -- Mandatory load
-	},
-	config = function()
-		-- 1. Setup Mason Registry
-		require("mason").setup()
+  "williamboman/mason.nvim",
+  dependencies = {
+    "williamboman/mason-lspconfig.nvim",
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    "neovim/nvim-lspconfig",
+    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/nvim-cmp", -- <--- ADDED THIS: Forces CMP to be available
+  },
+  config = function()
+    require("mason").setup()
 
-		-- 2. INSTALLATION (Handled ONLY by tool-installer)
-		-- This installs LSPs, Formatters, and Linters all at once.
-		require("mason-tool-installer").setup({
-			ensure_installed = lang_setup.get_mason_list(),
-			auto_update = true,
-			run_on_start = true,
-		})
+    require("mason-tool-installer").setup({
+      ensure_installed = lang_setup.get_mason_list(),
+      auto_update = true,
+      run_on_start = true,
+    })
 
-		-- 3. CONFIGURATION (Handled by lspconfig)
-		require("mason-lspconfig").setup({
-			-- CRITICAL FIX: We disable auto-install here because
-			-- mason-tool-installer is already doing it above.
-			-- This stops the "attempt to call field 'enable'" crash.
-			automatic_installation = false,
+    require("mason-lspconfig").setup({
+      automatic_installation = false,
+      handlers = {
+        function(server_name)
+          local lspconfig = require("lspconfig")
 
-			handlers = {
-				function(server_name)
-					local lspconfig = require("lspconfig")
-					-- Safe capability loading to prevent crashes
-					local capabilities = vim.lsp.protocol.make_client_capabilities()
-					local status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-					if status_ok then
-						capabilities = cmp_nvim_lsp.default_capabilities()
-					end
+          -- A. Define Capabilities (Safe Method)
+          local capabilities = vim.lsp.protocol.make_client_capabilities()
 
-					local config = { capabilities = capabilities }
+          -- We try to load cmp_nvim_lsp. If it fails, we stick to default capabilities.
+          local status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+          if status_ok then
+            -- We wrap this in another pcall because 'default_capabilities' can crash
+            -- if nvim-cmp isn't fully loaded yet.
+            local success, default_caps = pcall(function()
+              return cmp_nvim_lsp.default_capabilities()
+            end)
+            if success then
+              capabilities = default_caps
+            end
+          end
 
-					-- Custom Settings for specific servers
-					if server_name == "pyright" then
-						config.settings = {
-							python = {
-								analysis = {
-									typeCheckingMode = "off",
-									ignore = { "*" },
-								},
-							},
-						}
-					end
+          -- B. Global Encoding Fix
+          capabilities.offsetEncoding = { "utf-16" }
 
-					if server_name == "ruff" then
-						-- Disable hover so it doesn't fight with Pyright
-						config.on_attach = function(client)
-							client.server_capabilities.hoverProvider = false
-						end
-					end
+          -- C. Build Config
+          local config = { capabilities = capabilities }
 
-					lspconfig[server_name].setup(config)
-				end,
-			},
-		})
-	end,
+          -- D. Apply Custom Settings
+          if server_settings[server_name] then
+            local custom = server_settings[server_name]
+            if custom.settings then
+              config.settings = custom.settings
+            end
+            if custom.on_attach then
+              config.on_attach = custom.on_attach
+            end
+            if custom.capabilities then
+              config.capabilities = vim.tbl_deep_extend("force", config.capabilities, custom.capabilities)
+            end
+          end
+
+          lspconfig[server_name].setup(config)
+        end,
+      },
+    })
+  end,
 }

@@ -28,7 +28,7 @@ map("n", "<leader>ra", vim.lsp.buf.rename, { desc = "LSP Rename Variable" })
 
 -- [NEW] Format File: Prettifies code (indentation/spacing)
 map("n", "<leader>fm", function()
-  vim.lsp.buf.format({ async = true })
+	vim.lsp.buf.format({ async = true })
 end, { desc = "LSP Format File" })
 
 -- Toggle File Explorer
@@ -41,10 +41,10 @@ map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle File Explorer"
 map("t", "<ESC>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 map("n", "gl", function()
-  vim.diagnostic.open_float({
-    focusable = true, -- THIS is the key
-    focus = true,   -- Automatically jumps into the window
-  })
+	vim.diagnostic.open_float({
+		focusable = true, -- THIS is the key
+		focus = true, -- Automatically jumps into the window
+	})
 end, { desc = "Show Diagnostic Float" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
@@ -82,11 +82,18 @@ map("n", "<leader>fc", "<cmd>Telescope grep_string<cr>", { desc = "Find Word Und
 map("n", "<leader>z", "<cmd>ZenMode<cr>", { desc = "Toggle zen mode" })
 
 -- ========================
--- LAZYGIT
+-- GIT (NEOGIT)
 -- ========================
-map("n", "<leader>gg", "<cmd>LazyGit<cr>", { desc = "Open LazyGit" })
 
--- ========================
+-- <leader>gg : Open the Neogit Status Window
+map("n", "<leader>gg", "<cmd>Neogit<cr>", { desc = "Open Neogit" })
+
+-- <leader>gc : Open Commit View immediately
+map("n", "<leader>gc", "<cmd>Neogit commit<cr>", { desc = "Git Commit" })
+
+-- <leader>gp : Git Push
+map("n", "<leader>gp", "<cmd>Neogit push<cr>", { desc = "Git Push" }) -- ========================
+
 -- FUGITIVE
 -- ========================
 -- Open the Git Status window (like 'git status' but interactive)
