@@ -2,7 +2,12 @@ local map = vim.keymap.set
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
 
+-- Force the border specifically for this command
+map("i", "<C-k>", function()
+	vim.lsp.buf.signature_help({ border = "rounded" })
+end, { desc = "Show Signature Help" })
 map("n", "K", vim.lsp.buf.hover, { desc = "LSP toggle hover" })
+
 map("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 map("n", "<A-.>", vim.lsp.buf.code_action, { desc = "LSP code action" })
 
@@ -32,10 +37,10 @@ map("n", "<leader>fm", function()
 end, { desc = "LSP Format File" })
 
 -- Toggle File Explorer
-map("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle File Explorer" })
+-- map("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle File Explorer" })
 
 -- OR if you prefer using Space + e to Toggle (instead of just focus)
-map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle File Explorer" })
+-- map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle File Explorer" })
 
 -- MAP: Exit Terminal Mode with ESC
 map("t", "<ESC>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
@@ -92,10 +97,12 @@ map("n", "<leader>gg", "<cmd>Neogit<cr>", { desc = "Open Neogit" })
 map("n", "<leader>gc", "<cmd>Neogit commit<cr>", { desc = "Git Commit" })
 
 -- <leader>gp : Git Push
-map("n", "<leader>gp", "<cmd>Neogit push<cr>", { desc = "Git Push" }) -- ========================
+map("n", "<leader>gp", "<cmd>Neogit push<cr>", { desc = "Git Push" })
 
+-- ========================
 -- FUGITIVE
 -- ========================
+
 -- Open the Git Status window (like 'git status' but interactive)
 map("n", "<leader>gs", "<cmd>G<cr>", { desc = "Git Status (Fugitive)" })
 
