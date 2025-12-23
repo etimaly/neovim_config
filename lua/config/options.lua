@@ -8,5 +8,9 @@ vim.cmd("set ruler")
 vim.cmd("set number") -- Show current line number
 vim.cmd("set relativenumber") -- Show relative line numbers
 
+vim.cmd("set foldmethod=expr")
+vim.cmd("set foldexpr=nvim_treesitter#foldexpr()")
+vim.cmd("set foldenable")
+
 -- Make the active parameter bold and cyan (adjust color to your liking)
 vim.api.nvim_set_hl(0, "LspSignatureActiveParameter", { link = "Search" })
