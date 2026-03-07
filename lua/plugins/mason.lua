@@ -1,6 +1,7 @@
 local lang_setup = require("config.languages")
 
 -- 1. SERVER SETTINGS
+-- Custom configurations for specific LSPs
 local server_settings = {
 	pyright = {
 		settings = {
@@ -17,9 +18,10 @@ local server_settings = {
 	clangd = {
 		capabilities = { offsetEncoding = { "utf-16" } },
 	},
+	roslyn = { offsetEncoding = { "utf-16" } },
 }
 
--- 2. THE PLUGIN
+-- 2. THE PLUGIN SPEC
 return {
 	"williamboman/mason.nvim",
 	dependencies = {
@@ -27,47 +29,58 @@ return {
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		"neovim/nvim-lspconfig",
 		"hrsh7th/cmp-nvim-lsp",
-		"hrsh7th/nvim-cmp", -- <--- ADDED THIS: Forces CMP to be available
+		"hrsh7th/nvim-cmp",
 	},
 	config = function()
 		-- ==========================================================
-		-- 1. VISUAL TWEAKS (Add this section)
+		-- 1. VISUAL TWEAKS (Borders for Hover/Signature)
 		-- ==========================================================
-		-- This adds borders to the "Signature Help" (Method 2) and "Hover" windows
 		local handlers = {
 			["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
 			["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
 		}
 
-		-- Apply the handlers globally
 		for method, handler in pairs(handlers) do
 			vim.lsp.handlers[method] = handler
 		end
 
-		-----------------------------------------------------------
+		-- ==========================================================
+		-- 2. MASON CORE SETUP
+		-- ==========================================================
+		require("mason").setup({
+			-- Added the Crashdummyy registry so Mason can find 'roslyn'
+			registries = {
+				"github:mason-org/mason-registry",
+				"github:Crashdummyy/mason-registry",
+			},
+		})
 
-		require("mason").setup()
-
+		-- Auto-installs everything defined in your config/languages.lua
 		require("mason-tool-installer").setup({
 			ensure_installed = lang_setup.get_mason_list(),
 			auto_update = true,
 			run_on_start = true,
 		})
 
+		-- ==========================================================
+		-- 3. LSPCONFIG INTEGRATION
+		-- ==========================================================
 		require("mason-lspconfig").setup({
 			automatic_installation = false,
 			handlers = {
 				function(server_name)
+					-- IMPORTANT: Skip roslyn here.
+					-- The 'roslyn.nvim' plugin handles its own setup.
+					if server_name == "roslyn" then
+						return
+					end
+
 					local lspconfig = require("lspconfig")
 
-					-- A. Define Capabilities (Safe Method)
+					-- A. Define Capabilities (Safe Method with CMP check)
 					local capabilities = vim.lsp.protocol.make_client_capabilities()
-
-					-- We try to load cmp_nvim_lsp. If it fails, we stick to default capabilities.
 					local status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 					if status_ok then
-						-- We wrap this in another pcall because 'default_capabilities' can crash
-						-- if nvim-cmp isn't fully loaded yet.
 						local success, default_caps = pcall(function()
 							return cmp_nvim_lsp.default_capabilities()
 						end)
@@ -76,13 +89,13 @@ return {
 						end
 					end
 
-					-- B. Global Encoding Fix
-					capabilities.offsetEncoding = { "utf-16" }
+					-- B. Global Encoding Fix (Required for clangd/roslyn)
+					capabilities.offsetEncoding = { "utf-8" }
 
 					-- C. Build Config
 					local config = { capabilities = capabilities }
 
-					-- D. Apply Custom Settings
+					-- D. Apply Custom Settings from the table at the top
 					if server_settings[server_name] then
 						local custom = server_settings[server_name]
 						if custom.settings then
@@ -96,6 +109,7 @@ return {
 						end
 					end
 
+					-- Finalize setup for this server
 					lspconfig[server_name].setup(config)
 				end,
 			},

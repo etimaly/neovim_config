@@ -17,12 +17,6 @@ return {
 				-- TRY to find the formatter in standard builtins
 				local tool = formatting[config.formatter]
 
-				-- SPECIAL FIX FOR RUFF
-				if config.formatter == "ruff" and not tool then
-					-- Some versions call it ruff_format, some call it ruff
-					tool = formatting.ruff_format or formatting.ruff
-				end
-
 				if tool then
 					table.insert(sources, tool.with({ filetypes = { filetype } }))
 				else

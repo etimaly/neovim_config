@@ -1,13 +1,13 @@
 return {
 	"hrsh7th/nvim-cmp",
-	lazy = false, -- Keep this (fixes the crash)
+	lazy = false,
 	dependencies = {
 		"hrsh7th/cmp-nvim-lsp",
 		"hrsh7th/cmp-buffer",
 		"hrsh7th/cmp-path",
 		"L3MON4D3/LuaSnip",
 		"rafamadriz/friendly-snippets",
-		"onsails/lspkind.nvim", -- <--- NEW: Adds the icons
+		"onsails/lspkind.nvim",
 	},
 	config = function()
 		local cmp = require("cmp")
@@ -23,17 +23,15 @@ return {
 				end,
 			},
 
-			-- 1. ADD BORDERS
 			window = {
 				completion = cmp.config.window.bordered(),
 				documentation = cmp.config.window.bordered(),
 			},
 
-			-- 2. ADD ICONS & FORMATTING
 			formatting = {
 				format = lspkind.cmp_format({
-					mode = "symbol_text", -- Show "Icon + Text" (e.g. "ƒ Function")
-					maxwidth = 50, -- Prevent the popup from being too wide
+					mode = "symbol_text",
+					maxwidth = 50,
 					ellipsis_char = "...",
 					show_labelDetails = true,
 				}),
@@ -44,6 +42,29 @@ return {
 				["<C-j>"] = cmp.mapping.select_next_item(),
 				["<C-Space>"] = cmp.mapping.complete(),
 				["<CR>"] = cmp.mapping.confirm({ select = true }),
+
+				-- ==========================================================
+				-- TAB MAPPINGS (The Fix)
+				-- ==========================================================
+				["<Tab>"] = cmp.mapping(function(fallback)
+					if cmp.visible() then
+						cmp.select_next_item()
+					elseif luasnip.expand_or_jumpable() then
+						luasnip.expand_or_jump()
+					else
+						fallback() -- This makes the Tab key act like a normal Tab
+					end
+				end, { "i", "s" }),
+
+				["<S-Tab>"] = cmp.mapping(function(fallback)
+					if cmp.visible() then
+						cmp.select_prev_item()
+					elseif luasnip.jumpable(-1) then
+						luasnip.jump(-1)
+					else
+						fallback()
+					end
+				end, { "i", "s" }),
 			}),
 
 			sources = cmp.config.sources({
