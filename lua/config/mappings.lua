@@ -2,12 +2,26 @@ local map = vim.keymap.set
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
 
+map("n", "<leader>st", ":terminal<CR>", { desc = "Open terminal in new split" })
+map("t", "<Esc>", [[<C-\><C-n>]], { desc = "Exit terminal mode to normal mode" })
+
+-- Paste over selected text without losing the original yanked text
+map("x", "<leader>p", [["_dP]], { desc = "Paste and keep current register" })
+
+-- Delete text into the "void" register (doesn't overwrite your copy)
+map({ "n", "v" }, "<leader>d", [["_d]], { desc = "Delete without yanking" })
+
 -- Force the border specifically for this command
 map("i", "<C-k>", function()
-	vim.lsp.buf.signature_help({ border = "rounded" })
+  vim.lsp.buf.signature_help({ border = "rounded" })
 end, { desc = "Show Signature Help" })
 map("n", "K", vim.lsp.buf.hover, { desc = "LSP toggle hover" })
 
+map("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+map("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+map("n", "gr", vim.lsp.buf.references, { desc = "Show references" })
+map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line diagnostics (floating window)" })
+map("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP code action (Quick fix)" })
 map("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 map("n", "<A-.>", vim.lsp.buf.code_action, { desc = "LSP code action" })
 
@@ -18,13 +32,36 @@ map("n", "<C-w>", ":w <CR>")
 map("n", "<A-j>", ":m .+1<cr>==", { noremap = true, silent = true, desc = "Move line down" })
 map("n", "<A-k>", ":m .-2<cr>==", { noremap = true, silent = true, desc = "Move line up" })
 
--- [NEW] Window Resizing (Control + Arrow Keys)
-map("n", "<C-Up>", ":resize -2<CR>", { desc = "Resize Height -" })
-map("n", "<C-Down>", ":resize +2<CR>", { desc = "Resize Height +" })
-map("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Resize Width -" })
-map("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Resize Width +" })
+-- ==========================================
+-- Modern Editor Keymaps (Arrows & Navigation)
+-- ==========================================
 
--- [NEW] Diagnostic Navigation
+-- 1. Window Resizing (Control + Shift + Arrows)
+-- Note: If these don't work, check your terminal emulator's shortcut settings!
+map("n", "<A-Up>", ":resize -2<CR>", { desc = "Resize Height -" })
+map("n", "<A-Down>", ":resize +2<CR>", { desc = "Resize Height +" })
+map("n", "<A-Left>", ":vertical resize -2<CR>", { desc = "Resize Width -" })
+map("n", "<A-Right>", ":vertical resize +2<CR>", { desc = "Resize Width +" })
+
+-- 2. Jumping in Text - Normal Mode (Control + Arrows)
+map("n", "<C-Left>", "b", { desc = "Jump word backward" })
+map("n", "<C-Right>", "w", { desc = "Jump word forward" })
+map("n", "<C-Up>", "{", { desc = "Jump paragraph up" })
+map("n", "<C-Down>", "}", { desc = "Jump paragraph down" })
+
+-- 3. Jumping in Text - Insert Mode (Control + Arrows)
+-- Uses <C-o> to let you jump around without leaving Insert mode
+map("i", "<C-Left>", "<C-o>b", { desc = "Jump word backward" })
+map("i", "<C-Right>", "<C-o>w", { desc = "Jump word forward" })
+map("i", "<C-Up>", "<C-o>{", { desc = "Jump paragraph up" })
+map("i", "<C-Down>", "<C-o>}", { desc = "Jump paragraph down" })
+
+-- 4. Modern Backspace (Control + Backspace)
+-- Deletes the entire previous word while typing
+map("i", "<C-BS>", "<C-w>", { desc = "Delete previous word" })
+-- *Terminal Troubleshooting: If <C-BS> doesn't work in your specific terminal,
+-- comment it out and use this <C-h> mapping instead:*
+-- map("i", "<C-h>", "<C-w>", { desc = "Delete previous word" })-- [NEW] Diagnostic Navigation
 map("n", "[d", vim.diagnostic.goto_prev, { desc = "Goto Prev Diagnostic" })
 map("n", "]d", vim.diagnostic.goto_next, { desc = "Goto Next Diagnostic" })
 
@@ -33,7 +70,7 @@ map("n", "<leader>ra", vim.lsp.buf.rename, { desc = "LSP Rename Variable" })
 
 -- [NEW] Format File: Prettifies code (indentation/spacing)
 map("n", "<leader>fm", function()
-	vim.lsp.buf.format({ async = true })
+  vim.lsp.buf.format({ async = true })
 end, { desc = "LSP Format File" })
 
 -- Toggle File Explorer
@@ -46,10 +83,10 @@ end, { desc = "LSP Format File" })
 map("t", "<ESC>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 map("n", "gl", function()
-	vim.diagnostic.open_float({
-		focusable = true, -- THIS is the key
-		focus = true, -- Automatically jumps into the window
-	})
+  vim.diagnostic.open_float({
+    focusable = true, -- THIS is the key
+    focus = true,   -- Automatically jumps into the window
+  })
 end, { desc = "Show Diagnostic Float" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")

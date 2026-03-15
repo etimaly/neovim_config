@@ -16,6 +16,13 @@ return {
 
 		require("luasnip.loaders.from_vscode").lazy_load()
 
+		-- [NEW] The Bouncer: Checks if the cursor is at the start of a line or after whitespace
+		local has_words_before = function()
+			unpack = unpack or table.unpack
+			local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+			return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+		end
+
 		cmp.setup({
 			snippet = {
 				expand = function(args)
@@ -44,15 +51,20 @@ return {
 				["<CR>"] = cmp.mapping.confirm({ select = true }),
 
 				-- ==========================================================
-				-- TAB MAPPINGS (The Fix)
+				-- TAB MAPPINGS (The "Super Tab" Fix)
 				-- ==========================================================
 				["<Tab>"] = cmp.mapping(function(fallback)
 					if cmp.visible() then
 						cmp.select_next_item()
 					elseif luasnip.expand_or_jumpable() then
 						luasnip.expand_or_jump()
+					elseif has_words_before() then
+						cmp.complete()
 					else
-						fallback() -- This makes the Tab key act like a normal Tab
+						-- [THE NUCLEAR OPTION]
+						-- Forcefully send a native Tab keystroke, ignoring all other plugins
+						local key = vim.api.nvim_replace_termcodes("<Tab>", true, false, true)
+						vim.api.nvim_feedkeys(key, "n", false)
 					end
 				end, { "i", "s" }),
 
