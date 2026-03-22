@@ -1,113 +1,153 @@
 return {
-  "mfussenegger/nvim-dap",
-  dependencies = {
-    -- UI for the debugger
-    "rcarriga/nvim-dap-ui",
-    -- Virtual text for the debugger (shows values inline)
-    "theHamsta/nvim-dap-virtual-text",
-    -- Bridge between Mason and nvim-dap
-    "jay-babu/mason-nvim-dap.nvim", -- FIXED: jay-babu, not jay-bhoumick
-    -- Required for dap-ui
-    "nvim-neotest/nvim-nio",
-  },
-  keys = {
-    {
-      "<leader>db",
-      function()
-        require("dap").toggle_breakpoint()
-      end,
-      desc = "Toggle Breakpoint",
-    },
-    {
-      "<leader>dc",
-      function()
-        require("dap").continue()
-      end,
-      desc = "Continue / Start",
-    },
-    {
-      "<leader>di",
-      function()
-        require("dap").step_into()
-      end,
-      desc = "Step Into",
-    },
-    {
-      "<leader>do",
-      function()
-        require("dap").step_out()
-      end,
-      desc = "Step Out",
-    },
-    {
-      "<leader>dn",
-      function()
-        require("dap").step_over()
-      end,
-      desc = "Step Over",
-    },
-    {
-      "<leader>dr",
-      function()
-        require("dap").repl.open()
-      end,
-      desc = "Open REPL",
-    },
-    {
-      "<leader>du",
-      function()
-        require("dapui").toggle()
-      end,
-      desc = "Toggle DAP UI",
-    },
-  },
-  config = function()
-    local dap = require("dap")
-    local dapui = require("dapui")
+	"mfussenegger/nvim-dap",
+	dependencies = {
+		-- UI for the debugger
+		"rcarriga/nvim-dap-ui",
+		-- Virtual text for the debugger (shows values inline)
+		"theHamsta/nvim-dap-virtual-text",
+		-- Bridge between Mason and nvim-dap
+		"jay-babu/mason-nvim-dap.nvim",
+		-- Required for dap-ui
+		"nvim-neotest/nvim-nio",
+	},
+	keys = {
+		{
+			"<leader>db",
+			function()
+				local ok, dap = pcall(require, "dap")
+				if ok then
+					dap.toggle_breakpoint()
+				end
+			end,
+			desc = "Toggle Breakpoint",
+		},
+		{
+			"<leader>dc",
+			function()
+				local ok, dap = pcall(require, "dap")
+				if ok then
+					dap.continue()
+				end
+			end,
+			desc = "Continue / Start",
+		},
+		{
+			"<leader>di",
+			function()
+				local ok, dap = pcall(require, "dap")
+				if ok then
+					dap.step_into()
+				end
+			end,
+			desc = "Step Into",
+		},
+		{
+			"<leader>do",
+			function()
+				local ok, dap = pcall(require, "dap")
+				if ok then
+					dap.step_out()
+				end
+			end,
+			desc = "Step Out",
+		},
+		{
+			"<leader>dn",
+			function()
+				local ok, dap = pcall(require, "dap")
+				if ok then
+					dap.step_over()
+				end
+			end,
+			desc = "Step Over",
+		},
+		{
+			"<leader>dr",
+			function()
+				local ok, dap = pcall(require, "dap")
+				if ok then
+					dap.repl.open()
+				end
+			end,
+			desc = "Open REPL",
+		},
+		{
+			"<leader>du",
+			function()
+				local ok, dapui = pcall(require, "dapui")
+				if ok then
+					dapui.toggle()
+				end
+			end,
+			desc = "Toggle DAP UI",
+		},
+	},
+	config = function()
+		-- 1. PROTECTIVE REQUIRES
+		-- If these fail (e.g., plugin not downloaded yet), the function exits silently
+		local dap_status, dap = pcall(require, "dap")
+		local dapui_status, dapui = pcall(require, "dapui")
+		local mason_dap_status, mason_dap = pcall(require, "mason-nvim-dap")
 
-    -- 1. Setup UI
-    dapui.setup()
+		if not (dap_status and dapui_status) then
+			return
+		end
 
-    -- 2. Setup Virtual Text
-    require("nvim-dap-virtual-text").setup({})
+		-- 2. SETUP UI & VIRTUAL TEXT
+		dapui.setup()
 
-    -- 3. Open UI automatically when debugging starts
-    dap.listeners.before.attach.dapui_config = function()
-      dapui.open()
-    end
-    dap.listeners.before.launch.dapui_config = function()
-      dapui.open()
-    end
-    dap.listeners.before.event_terminated.dapui_config = function()
-      dapui.close()
-    end
-    dap.listeners.before.event_exited.dapui_config = function()
-      dapui.close()
-    end
+		local vt_status, dap_vt = pcall(require, "nvim-dap-virtual-text")
+		if vt_status then
+			dap_vt.setup({})
+		end
 
-    -- 4. Setup Mason Integration
-    require("mason-nvim-dap").setup({
-      -- Ensures the adapters defined in your tools file are set up
-      automatic_installation = true,
+		-- 3. AUTOMATION: OPEN/CLOSE UI
+		dap.listeners.before.attach.dapui_config = function()
+			dapui.open()
+		end
+		dap.listeners.before.launch.dapui_config = function()
+			dapui.open()
+		end
+		dap.listeners.before.event_terminated.dapui_config = function()
+			dapui.close()
+		end
+		dap.listeners.before.event_exited.dapui_config = function()
+			dapui.close()
+		end
 
-      handlers = {
-        function(config)
-          require("mason-nvim-dap").default_setup(config)
-        end,
+		-- 4. MASON-DAP INTEGRATION
+		if mason_dap_status then
+			mason_dap.setup({
+				-- This will look at what's in your languages.lua
+				-- (provided mason-tool-installer is running)
+				automatic_installation = true,
 
-        -- Custom configurations (Overrides)
-        -- specific args for Python
-        python = function(config)
-          config.adapters = {
-            type = "executable",
-            command = vim.fn.exepath("python3") or vim.fn.exepath("python"),
-            args = { "-m", "debugpy.adapter" },
-          }
-          require("mason-nvim-dap").default_setup(config)
-        end,
-      },
+				handlers = {
+					function(config)
+						mason_dap.default_setup(config)
+					end,
 
-      ensure_installed = {},
-    })
-  end,
+					-- Specialized Python setup to handle different OS paths
+					python = function(config)
+						local path = vim.fn.exepath("python3")
+						if path == "" then
+							path = vim.fn.exepath("python")
+						end
+
+						if path ~= "" then
+							config.adapters = {
+								type = "executable",
+								command = path,
+								args = { "-m", "debugpy.adapter" },
+							}
+						end
+						mason_dap.default_setup(config)
+					end,
+				},
+				-- ensure_installed is empty here because your
+				-- M.get_mason_list() in languages.lua handles the master list.
+				ensure_installed = {},
+			})
+		end
+	end,
 }

@@ -10,13 +10,20 @@ return {
 		"onsails/lspkind.nvim",
 	},
 	config = function()
-		local cmp = require("cmp")
-		local luasnip = require("luasnip")
-		local lspkind = require("lspkind")
+		-- 1. Protective Requires
+		local cmp_ok, cmp = pcall(require, "cmp")
+		local luasnip_ok, luasnip = pcall(require, "luasnip")
+		local lspkind_ok, lspkind = pcall(require, "lspkind")
 
-		require("luasnip.loaders.from_vscode").lazy_load()
+		if not cmp_ok then
+			return
+		end
 
-		-- [NEW] The Bouncer: Checks if the cursor is at the start of a line or after whitespace
+		-- Load snippets safely
+		if luasnip_ok then
+			require("luasnip.loaders.from_vscode").lazy_load()
+		end
+
 		local has_words_before = function()
 			unpack = unpack or table.unpack
 			local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -26,7 +33,9 @@ return {
 		cmp.setup({
 			snippet = {
 				expand = function(args)
-					luasnip.lsp_expand(args.body)
+					if luasnip_ok then
+						luasnip.lsp_expand(args.body)
+					end
 				end,
 			},
 
@@ -36,12 +45,13 @@ return {
 			},
 
 			formatting = {
-				format = lspkind.cmp_format({
+				-- Only use lspkind if it actually loaded
+				format = lspkind_ok and lspkind.cmp_format({
 					mode = "symbol_text",
 					maxwidth = 50,
 					ellipsis_char = "...",
 					show_labelDetails = true,
-				}),
+				}) or nil,
 			},
 
 			mapping = cmp.mapping.preset.insert({
@@ -50,19 +60,14 @@ return {
 				["<C-Space>"] = cmp.mapping.complete(),
 				["<CR>"] = cmp.mapping.confirm({ select = true }),
 
-				-- ==========================================================
-				-- TAB MAPPINGS (The "Super Tab" Fix)
-				-- ==========================================================
 				["<Tab>"] = cmp.mapping(function(fallback)
 					if cmp.visible() then
 						cmp.select_next_item()
-					elseif luasnip.expand_or_jumpable() then
+					elseif luasnip_ok and luasnip.expand_or_jumpable() then
 						luasnip.expand_or_jump()
 					elseif has_words_before() then
 						cmp.complete()
 					else
-						-- [THE NUCLEAR OPTION]
-						-- Forcefully send a native Tab keystroke, ignoring all other plugins
 						local key = vim.api.nvim_replace_termcodes("<Tab>", true, false, true)
 						vim.api.nvim_feedkeys(key, "n", false)
 					end
@@ -71,7 +76,7 @@ return {
 				["<S-Tab>"] = cmp.mapping(function(fallback)
 					if cmp.visible() then
 						cmp.select_prev_item()
-					elseif luasnip.jumpable(-1) then
+					elseif luasnip_ok and luasnip.jumpable(-1) then
 						luasnip.jump(-1)
 					else
 						fallback()
@@ -79,6 +84,8 @@ return {
 				end, { "i", "s" }),
 			}),
 
+			-- 2. Resilient Sources
+			-- We only add sources if the plugins are actually there
 			sources = cmp.config.sources({
 				{ name = "nvim_lsp" },
 				{ name = "luasnip" },
