@@ -39,10 +39,22 @@ return {
 			sources = sources,
 			on_attach = function(client, bufnr)
 				if client.supports_method("textDocument/formatting") then
+					-- Create a unique group so we don't stack multiple autocmds
+					local augroup = vim.api.nvim_create_augroup("LspFormatting", { clear = true })
+
+					vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
 					vim.api.nvim_create_autocmd("BufWritePre", {
+						group = augroup,
 						buffer = bufnr,
 						callback = function()
-							vim.lsp.buf.format({ bufnr = bufnr, async = false })
+							vim.lsp.buf.format({
+								bufnr = bufnr,
+								-- [THE FIX]: Filter so ONLY null-ls formats the file
+								filter = function(f_client)
+									return f_client.name == "null-ls"
+								end,
+								async = false,
+							})
 						end,
 					})
 				end

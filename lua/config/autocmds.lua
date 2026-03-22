@@ -7,6 +7,60 @@ autocmd("LspAttach", {
 	group = format_group,
 	callback = function(args)
 		local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+		-- Pull in telescope builtin at the top
+		local telescope = require("telescope.builtin")
+
+		-- ==========================================
+		-- 1. LSP KEYBOARD SHORTCUTS
+		-- ==========================================
+		-- We create a custom 'map' function that automatically makes your shortcuts buffer-local
+		local map = function(mode, keys, func, opts)
+			opts = opts or {}
+			opts.buffer = args.buf -- THIS is the magic line that makes it safe!
+			vim.keymap.set(mode, keys, func, opts)
+		end
+
+		-- Your custom mappings:
+		map("n", "K", vim.lsp.buf.hover, { desc = "LSP toggle hover" })
+		map("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+
+		-- [UPDATED] Replaced standard LSP jumps with Telescope searchable UI
+		map("n", "gi", telescope.lsp_implementations, { desc = "Telescope implementation" })
+		map("n", "gr", telescope.lsp_references, { desc = "Telescope references" })
+		map("n", "gd", telescope.lsp_definitions, { desc = "Telescope definition" })
+
+		map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line diagnostics (floating window)" })
+		map("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP code action (Quick fix)" })
+		map("n", "<A-.>", vim.lsp.buf.code_action, { desc = "LSP code action" })
+
+		map("n", "[d", vim.diagnostic.goto_prev, { desc = "Goto Prev Diagnostic" })
+		map("n", "]d", vim.diagnostic.goto_next, { desc = "Goto Next Diagnostic" })
+
+		-- [NEW] Smart Rename
+		map("n", "<leader>ra", vim.lsp.buf.rename, { desc = "LSP Rename Variable" })
+
+		-- [NEW] Format File (Manual trigger)
+		map("n", "<leader>fm", function()
+			vim.lsp.buf.format({ async = true })
+		end, { desc = "LSP Format File" })
+
+		-- Show Diagnostic Float (Focusable)
+		map("n", "gl", function()
+			vim.diagnostic.open_float({
+				focusable = true, -- THIS is the key
+				focus = true, -- Automatically jumps into the window
+			})
+		end, { desc = "Show Diagnostic Float" })
+
+		-- Force the border specifically for this command
+		map("i", "<C-k>", function()
+			vim.lsp.buf.signature_help({ border = "rounded" })
+		end, { desc = "Show Signature Help" })
+
+		-- ==========================================
+		-- 2. FORMAT ON SAVE
+		-- ==========================================
 		if not client or not client.supports_method("textDocument/formatting") then
 			return
 		end
@@ -29,7 +83,6 @@ autocmd("LspAttach", {
 		})
 	end,
 })
-
 -- 2 Spaces: Lua, Web development
 autocmd("FileType", {
 	pattern = { "lua", "javascript", "typescript", "javascriptreact", "typescriptreact", "html", "css", "json" },

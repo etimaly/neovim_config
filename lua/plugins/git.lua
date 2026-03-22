@@ -43,9 +43,20 @@ return {
 			"nvim-telescope/telescope.nvim", -- Optional
 		},
 		config = true, -- Runs require('neogit').setup() automatically
+		keys = {
+			{ "<leader>gg", "<cmd>Neogit<cr>", desc = "Open Neogit" },
+			{ "<leader>gc", "<cmd>Neogit commit<cr>", desc = "Git Commit" },
+			{ "<leader>gp", "<cmd>Neogit push<cr>", desc = "Git Push" },
+		},
 	},
 	{
 		"tpope/vim-fugitive",
 		cmd = "G", -- Load only when you type :G
+		keys = {
+			-- Open the Git Status window (like 'git status' but interactive)
+			{ "<leader>gs", "<cmd>G<cr>", desc = "Git Status (Fugitive)" },
+			-- Open Git Blame sidebar
+			{ "<leader>gB", "<cmd>Git blame<cr>", desc = "Git Blame (Fugitive)" },
+		},
 	},
 }

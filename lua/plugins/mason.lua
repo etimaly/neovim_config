@@ -53,6 +53,9 @@ return {
 				"github:mason-org/mason-registry",
 				"github:Crashdummyy/mason-registry",
 			},
+			ui = {
+				border = "rounded",
+			},
 		})
 
 		-- Auto-installs everything defined in your config/languages.lua
