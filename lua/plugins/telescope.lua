@@ -8,6 +8,8 @@ return {
 		{ "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
 		-- <leader>fc : "Find Cursor" (Find word under cursor)
 		{ "<leader>fc", "<cmd>Telescope grep_string<cr>", desc = "Find Word Under Cursor" },
+		-- In your keymaps or within the Telescope/Git config
+		{ "<leader>gc", "<cmd>Telescope commands<cr>", desc = "Git Commands Palette" },
 	},
 	defaults = {
 		borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },

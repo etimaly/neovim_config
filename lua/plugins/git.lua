@@ -2,61 +2,62 @@ return {
 	{
 		"lewis6991/gitsigns.nvim",
 		event = { "BufReadPre", "BufNewFile" },
-		config = function()
-			require("gitsigns").setup({
-				signs = {
-					add = { text = "▎" },
-					change = { text = "▎" },
-					delete = { text = "" },
-					topdelete = { text = "" },
-					changedelete = { text = "▎" },
-				},
-				-- KEYMAPPINGS GO HERE
-				on_attach = function(bufnr)
-					local gs = package.loaded.gitsigns
+		opts = { -- Using 'opts' is cleaner for simple setups
+			signs = {
+				add = { text = "▎" },
+				change = { text = "▎" },
+				delete = { text = "" },
+				topdelete = { text = "" },
+				changedelete = { text = "▎" },
+			},
+			on_attach = function(bufnr)
+				local gs = package.loaded.gitsigns
+				local function map(mode, l, r, opts)
+					opts = opts or {}
+					opts.buffer = bufnr
+					vim.keymap.set(mode, l, r, opts)
+				end
 
-					local function map(mode, l, r, opts)
-						opts = opts or {}
-						opts.buffer = bufnr
-						vim.keymap.set(mode, l, r, opts)
-					end
+				-- Navigation
+				map("n", "]h", gs.next_hunk, { desc = "Next Hunk" })
+				map("n", "[h", gs.prev_hunk, { desc = "Prev Hunk" })
 
-					-- Navigation
-					map("n", "]h", gs.next_hunk, { desc = "Next Git Hunk" })
-					map("n", "[h", gs.prev_hunk, { desc = "Previous Git Hunk" })
-
-					-- Actions
-					map("n", "<leader>gh", gs.preview_hunk, { desc = "Preview Hunk" })
-					map("n", "<leader>gb", function()
-						gs.blame_line({ full = true })
-					end, { desc = "Git Blame Line" })
-					map("n", "<leader>gd", gs.diffthis, { desc = "Git Diff" })
-				end,
-			})
-		end,
+				-- Actions: Use <leader>gh for "Git Hunk" actions
+				map("n", "<leader>ghp", gs.preview_hunk, { desc = "Preview Hunk" })
+				map("n", "<leader>ghs", gs.stage_hunk, { desc = "Stage Hunk" })
+				map("n", "<leader>ghu", gs.undo_stage_hunk, { desc = "Undo Stage Hunk" })
+				map("n", "<leader>ghr", gs.reset_hunk, { desc = "Reset Hunk" })
+				map("n", "<leader>gb", function()
+					gs.blame_line({ full = true })
+				end, { desc = "Blame Line" })
+			end,
+		},
 	},
+
 	{
 		"NeogitOrg/neogit",
 		dependencies = {
-			"nvim-lua/plenary.nvim", -- Required
-			"sindrets/diffview.nvim", -- Optional: Powerful diff view
-			"nvim-telescope/telescope.nvim", -- Optional
+			"nvim-lua/plenary.nvim",
+			"sindrets/diffview.nvim",
+			"nvim-telescope/telescope.nvim",
 		},
-		config = true, -- Runs require('neogit').setup() automatically
+		config = function()
+			require("neogit").setup({
+				-- Integrations make the plugin much more powerful
+				integrations = {
+					diffview = true, -- This is the "secret sauce" for better diffs
+					telescope = true,
+				},
+				kind = "tab", -- Opens Neogit in a new tab (cleaner workflow)
+			})
+		end,
 		keys = {
-			{ "<leader>gg", "<cmd>Neogit<cr>", desc = "Open Neogit" },
-			{ "<leader>gc", "<cmd>Neogit commit<cr>", desc = "Git Commit" },
-			{ "<leader>gp", "<cmd>Neogit push<cr>", desc = "Git Push" },
+			{ "<leader>gg", "<cmd>Neogit<cr>", desc = "Neogit Status" },
+			{ "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diffview Open" },
+			{ "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File History" },
 		},
 	},
-	{
-		"tpope/vim-fugitive",
-		cmd = "G", -- Load only when you type :G
-		keys = {
-			-- Open the Git Status window (like 'git status' but interactive)
-			{ "<leader>gs", "<cmd>G<cr>", desc = "Git Status (Fugitive)" },
-			-- Open Git Blame sidebar
-			{ "<leader>gB", "<cmd>Git blame<cr>", desc = "Git Blame (Fugitive)" },
-		},
-	},
+
+	-- Keep Fugitive as a backup for complex 'Git log' or 'Git mergetool' needs
+	{ "tpope/vim-fugitive" },
 }
