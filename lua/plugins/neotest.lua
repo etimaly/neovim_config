@@ -15,6 +15,53 @@ return {
 		local neotest = require("neotest")
 
 		neotest.setup({
+			-- UI OVERHAUL: Modern, clean icons (requires a Nerd Font)
+			icons = {
+				passed = " ",
+				running = " ",
+				failed = " ",
+				unknown = " ",
+				skipped = " ",
+				non_collapsible = "─",
+				collapsed = "",
+				expanded = "",
+				child_prefix = "├",
+				final_child_prefix = "╰",
+				child_indent = "│",
+				final_child_indent = " ",
+				compiler = " ",
+				env = " ",
+				test = " ",
+			},
+
+			-- UI OVERHAUL: Force floating windows to be rounded and centered
+			floating = {
+				border = "rounded",
+				max_height = 0.8,
+				max_width = 0.8,
+				options = {},
+			},
+
+			summary = {
+				animated = true,
+				mappings = {
+					expand = { "<CR>", "<2-LeftMouse>" },
+					expand_all = "e",
+					output = "o",
+					short = "O",
+					attach = "a",
+					jumpto = "i",
+					stop = "u",
+					mark = "m",
+					run = "r",
+				},
+			},
+
+			-- Prevent the output from aggressively popping up automatically
+			output = {
+				open_on_run = false,
+			},
+
 			adapters = {
 				-- ====================================================
 				-- 1. Python (Pytest & Unittest)
@@ -90,7 +137,15 @@ return {
 			function()
 				require("neotest").output.open({ enter = true, auto_close = true })
 			end,
-			desc = "Show Output",
+			desc = "Show Output (Float)",
+		},
+		-- NEW: Toggles the persistent output panel split at the bottom
+		{
+			"<leader>tP",
+			function()
+				require("neotest").output_panel.toggle()
+			end,
+			desc = "Toggle Output Panel",
 		},
 	},
 }
