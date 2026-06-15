@@ -6,16 +6,14 @@ return {
 		"antoinemadec/FixCursorHold.nvim",
 		"nvim-treesitter/nvim-treesitter",
 
-		-- ADAPTERS
-		"nvim-neotest/neotest-python", -- Supports Pytest and Unittest
-		"mrcjkb/neotest-haskell", -- Haskell (Cabal/Stack/Dune)
-		"alfaix/neotest-gtest", -- Google Test
+		"nvim-neotest/neotest-python",
+		"mrcjkb/neotest-haskell",
+		"alfaix/neotest-gtest",
 	},
 	config = function()
 		local neotest = require("neotest")
 
 		neotest.setup({
-			-- UI OVERHAUL: Modern, clean icons (requires a Nerd Font)
 			icons = {
 				passed = " ",
 				running = " ",
@@ -34,7 +32,6 @@ return {
 				test = " ",
 			},
 
-			-- UI OVERHAUL: Force floating windows to be rounded and centered
 			floating = {
 				border = "rounded",
 				max_height = 0.8,
@@ -57,17 +54,15 @@ return {
 				},
 			},
 
-			-- Prevent the output from aggressively popping up automatically
 			output = {
 				open_on_run = false,
 			},
 
 			adapters = {
 				-- ====================================================
-				-- 1. Python (Pytest & Unittest)
+				-- Python
 				-- ====================================================
 				require("neotest-python")({
-					-- Dynamic runner determination based on file existence
 					runner = function()
 						if vim.fn.glob("pytest.ini") ~= "" or vim.fn.glob("pyproject.toml") ~= "" then
 							return "pytest"
@@ -76,39 +71,30 @@ return {
 						end
 					end,
 
-					-- Debugging settings (requires nvim-dap)
 					dap = { justMyCode = false },
-
-					-- Custom criteria to recognize test files if defaults fail
-					-- is_test_file = function(file_path) ... end
 				}),
 
 				-- ====================================================
-				-- 2. Haskell
+				-- Haskell
 				-- ====================================================
 				require("neotest-haskell")({
-					-- Default build tool is 'cabal', but you can change to 'stack'
 					build_tools = { "cabal" },
 				}),
 
 				-- ====================================================
-				-- 3. Google Test (C++)
+				-- Google Test
 				-- ====================================================
 				require("neotest-gtest").setup({
-					-- Helps the adapter find your compiled test executables.
-					-- It looks for compile_commands.json or .git by default.
 					root = require("neotest.lib").files.match_root_pattern(
 						"compile_commands.json",
 						"CMakeLists.txt",
 						".git"
 					),
-					-- If your tests are not recognized, run :ConfigureGtest to map them manually
 				}),
 			},
 		})
 	end,
 
-	-- Keybindings
 	keys = {
 		{ "<leader>t", "", desc = "+test" },
 		{
@@ -139,7 +125,6 @@ return {
 			end,
 			desc = "Show Output (Float)",
 		},
-		-- NEW: Toggles the persistent output panel split at the bottom
 		{
 			"<leader>tP",
 			function()

@@ -1,7 +1,6 @@
 return {
 	"folke/trouble.nvim",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
-	-- Remove 'cmd = "Trouble"' and let 'keys' handle the lazy loading
 	keys = {
 		{
 			"<leader>xx",
@@ -47,9 +46,7 @@ return {
 		},
 	},
 	opts = {
-		-- Automatically close the list when you have no diagnostics left
 		auto_close = true,
-		-- Restore focus to the window you were in after closing Trouble
 		restore_focus = true,
 	},
 }

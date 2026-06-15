@@ -1,35 +1,34 @@
 local map = vim.keymap.set
 
 -- ==========================================
--- 1. COMMAND & ESCAPE (The Essentials)
+-- Command / Escape
 -- ==========================================
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>", { desc = "Exit insert mode" })
 
 -- ==========================================
--- 2. FILE & SESSION (Your Custom C-Prefixes)
+-- File / Session
 -- ==========================================
 map("n", "<C-w>", "<cmd>w<cr>", { silent = true, desc = "Save" })
 map("n", "<C-q>", "<cmd>q<cr>", { silent = true, desc = "Quit" })
 map("n", "<C-u>", "<cmd>u<cr>", { silent = true, desc = "Undo" })
 
 -- ==========================================
--- 3. WINDOW NAVIGATION (Alt + hjkl)
+-- Window navigation
 -- ==========================================
--- This solves your "How do I change panes" question perfectly
 map("n", "<A-h>", "<C-w>h", { desc = "Go to Left Window" })
 map("n", "<A-j>", "<C-w>j", { desc = "Go to Lower Window" })
 map("n", "<A-k>", "<C-w>k", { desc = "Go to Upper Window" })
 map("n", "<A-l>", "<C-w>l", { desc = "Go to Right Window" })
 
--- Window Resizing (Alt + Shift + hjkl)
+-- Window resizing
 map("n", "<A-H>", "<cmd>vertical resize -2<cr>", { desc = "Resize Width -" })
 map("n", "<A-J>", "<cmd>resize +2<cr>", { desc = "Resize Height +" })
 map("n", "<A-K>", "<cmd>resize -2<cr>", { desc = "Resize Height -" })
 map("n", "<A-L>", "<cmd>vertical resize +2<cr>", { desc = "Resize Width +" })
 
 -- ==========================================
--- 4. TEXT MOVEMENT (Ctrl + j/k)
+-- Text movement
 -- ==========================================
 map("n", "<C-j>", "<cmd>m .+1<cr>== ", { desc = "Move line down" })
 map("n", "<C-k>", "<cmd>m .-2<cr>== ", { desc = "Move line up" })
@@ -37,14 +36,11 @@ map("v", "<C-j>", ":m '>+1<cr>gv=gv", { desc = "Move selection down" })
 map("v", "<C-k>", ":m '<-2<cr>gv=gv", { desc = "Move selection up" })
 
 -- ==========================================
--- 5. WORD JUMPING (Insert & Normal Mode)
+-- Word jumping
 -- ==========================================
--- Normal Mode (Home Row style)
 map("n", "<C-Left>", "b", { desc = "Jump word back" })
 map("n", "<C-Right>", "w", { desc = "Jump word forward" })
 
--- Insert Mode (Your original jumps)
--- <C-o> lets you execute one normal command without leaving Insert mode
 map("i", "<C-Left>", "<C-o>b", { desc = "Jump word back" })
 map("i", "<C-Right>", "<C-o>w", { desc = "Jump word forward" })
 map("i", "<C-Up>", "<C-o>{", { desc = "Jump paragraph up" })
@@ -52,13 +48,13 @@ map("i", "<C-Down>", "<C-o>}", { desc = "Jump paragraph down" })
 map("i", "<C-BS>", "<C-w>", { desc = "Delete previous word" })
 
 -- ==========================================
--- 6. CLIPBOARD & VOID (Leader Prefixes)
+-- Clipboard / Void
 -- ==========================================
 map({ "n", "v" }, "<leader>d", [["_d]], { desc = "Delete to Void" })
 map("x", "<leader>p", [["_dP]], { desc = "Paste over (Keep original)" })
 
 -- ==========================================
--- 7. TERMINAL
+-- Terminal
 -- ==========================================
 map("n", "<leader>st", "<cmd>terminal<cr>", { desc = "Open Terminal" })
 map("t", "<Esc>", [[<C-\><C-n>]], { desc = "Exit Terminal Mode" })

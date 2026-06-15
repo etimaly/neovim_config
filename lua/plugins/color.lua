@@ -1,25 +1,25 @@
 return {
 	"catppuccin/nvim",
 	name = "catppuccin",
-	priority = 1000, -- Load this before everything else so the UI doesn't flash
+	priority = 1000,
 	config = function()
 		require("catppuccin").setup({
-			flavour = "mocha", -- Options: latte, frappe, macchiato, mocha
+			flavour = "mocha",
 			background = {
 				light = "latte",
 				dark = "mocha",
 			},
-			transparent_background = true, -- Set to true if you want your terminal bg to show through
+			transparent_background = true,
 			term_colors = true,
 
-			-- INTEGRATIONS
-			-- This ensures plugins look good with the theme
+			-- Integrations
 			integrations = {
 				cmp = true,
 				gitsigns = true,
+				neotree = true,
 				nvimtree = true,
 				treesitter = true,
-				mason = true, -- Nice background for Mason
+				mason = true,
 				native_lsp = {
 					enabled = true,
 					virtual_text = {
@@ -41,7 +41,6 @@ return {
 			},
 		})
 
-		-- Apply the colorscheme
 		vim.cmd.colorscheme("catppuccin")
 	end,
 }

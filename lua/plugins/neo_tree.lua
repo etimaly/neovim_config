@@ -5,19 +5,17 @@ return {
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
-			"nvim-tree/nvim-web-devicons", -- optional, but recommended
+			"nvim-tree/nvim-web-devicons",
 		},
-		lazy = false, -- neo-tree will lazily load itself
+		lazy = false,
 
-		-- Add the keymap directly here so it loads with the plugin
 		keys = {
 			{
 				"<leader>e",
 				function()
-					-- Check if we are currently focused inside Neo-tree
 					if vim.bo.filetype == "neo-tree" then
 						local has_zen, zen_view = pcall(require, "zen-mode.view")
-						-- If Zen Mode is active, force focus to its window FIRST
+						-- Return focus to Zen before closing Neo-tree.
 						if has_zen and zen_view.win and vim.api.nvim_win_is_valid(zen_view.win) then
 							vim.api.nvim_set_current_win(zen_view.win)
 						end
@@ -36,11 +34,9 @@ return {
 			require("neo-tree").setup({
 				popup_border_style = "rounded",
 				window = {
-					-- 1. Change position to float
 					position = "float",
 					width = 30,
 
-					-- 2. Zen-Safe Mappings
 					mappings = {
 						["<esc>"] = "close_window_zen_safe",
 						["q"] = "close_window_zen_safe",
@@ -49,7 +45,7 @@ return {
 					},
 				},
 
-				-- 3. Zen-Safe Commands
+				-- Zen-safe commands
 				commands = {
 					close_window_zen_safe = function()
 						local has_zen, zen_view = pcall(require, "zen-mode.view")
@@ -63,11 +59,10 @@ return {
 						local has_zen, zen_view = pcall(require, "zen-mode.view")
 						local is_zen_active = has_zen and zen_view.win and vim.api.nvim_win_is_valid(zen_view.win)
 
-						-- Let Neo-tree open the file normally
 						local fs_commands = require("neo-tree.sources.filesystem.commands")
 						fs_commands.open(state)
 
-						-- If Zen Mode was active, ensure it wraps around the new buffer
+						-- Reopen Zen around the selected buffer.
 						if is_zen_active then
 							vim.defer_fn(function()
 								if not (zen_view.win and vim.api.nvim_win_is_valid(zen_view.win)) then
@@ -80,12 +75,12 @@ return {
 
 				filesystem = {
 					filtered_items = {
-						visible = true, -- Show hidden files?
+						visible = true,
 						hide_dotfiles = false,
 						hide_gitignored = false,
 					},
 					follow_current_file = {
-						enabled = true, -- Scroll to current file when opening
+						enabled = true,
 					},
 				},
 			})

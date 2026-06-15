@@ -1,36 +1,31 @@
 local M = {}
 
--- Key = Language ID (internal)
--- Value = Tools config
 M.languages = {
   -- ========================
-  -- PYTHON (The "Pro" Stack)
+  -- Python
   -- ========================
   python = {
     treesitter = "python",
-    -- Pyright for Completion, Ruff for speed/linting
     lsp = { "pyright", "ruff" },
-    -- formatter = "ruff", -- ruff already handles it -- Conform calls it 'ruff_format'
-    linter = "mypy", -- Nvim-lint calls it 'mypy'
+    linter = "mypy",
     dap = "debugpy",
   },
 
   cs = {
     treesitter = "c_sharp",
-    -- Note: We use a custom setup for roslyn.nvim instead of standard lspconfig
+    -- roslyn.nvim handles setup outside lspconfig.
     lsp = "roslyn",
     formatter = "csharpier",
     dap = "netcoredbg",
   },
 
   -- ========================
-  -- CORE / WEB
+  -- Core / Web
   -- ========================
   lua = {
     treesitter = "lua",
     lsp = "lua_ls",
     formatter = "stylua",
-    -- dap = "lua-debug-adapter", -- Optional: manual setup often required
   },
   javascript = {
     treesitter = "javascript",
@@ -54,65 +49,81 @@ M.languages = {
     lsp = "cssls",
     formatter = "prettier",
   },
+  json = {
+    treesitter = "json",
+    lsp = "jsonls",
+    formatter = "prettier",
+  },
+  yaml = {
+    treesitter = "yaml",
+    lsp = "yamlls",
+    formatter = "prettier",
+  },
+  toml = {
+    treesitter = "toml",
+    lsp = "taplo",
+  },
 
   -- ========================
-  -- COMPILED / DATA
+  -- Compiled / Data
   -- ========================
   rust = {
     treesitter = "rust",
     lsp = "rust_analyzer",
-    -- formatter = "rust-analyzer",
     dap = "codelldb",
+  },
+  zig = {
+    treesitter = "zig",
+    lsp = "zls",
   },
   cpp = {
     treesitter = "cpp",
     lsp = "clangd",
-    formatter = "clang_format", -- Underscore here, converted in helper below
+    formatter = "clang_format",
     dap = "codelldb",
-    -- linter = { "cppcheck", "clang-tidy" },
   },
   haskell = {
     treesitter = "haskell",
-    lsp = "hls", -- Haskell Language Server
-    -- formatter = "ormolu", already included in hls -- Standard formatter
+    lsp = "hls",
   },
   sql = {
     treesitter = "sql",
     lsp = "sqlls",
-    formatter = "sql_formatter", -- Underscore here, converted in helper below
+    formatter = "sql_formatter",
   },
   docker = {
     treesitter = "dockerfile",
     lsp = "dockerls",
-    -- formatter = "hadolint",
-    -- linter = "hadolint",
-    -- dap = "haskell-debug-adapter", -- Add this line
   },
 }
 
 -- ========================
--- HELPER FUNCTIONS
+-- Mason tools
 -- ========================
 M.get_mason_list = function()
   local list = {}
+  local seen = {}
 
-  -- 1. Add overrides/globals
-  table.insert(list, "black")
+  local function add(name)
+    if not seen[name] then
+      table.insert(list, name)
+      seen[name] = true
+    end
+  end
 
-  -- 2. Loop through config
+  add("black")
+
   for _, config in pairs(M.languages) do
-    -- Add LSPs
     if config.lsp then
       if type(config.lsp) == "table" then
         for _, v in ipairs(config.lsp) do
-          table.insert(list, v)
+          add(v)
         end
       else
-        table.insert(list, config.lsp)
+        add(config.lsp)
       end
     end
 
-    -- Add Formatters (Convert underscores back to hyphens for Mason if needed)
     if config.formatter then
       local name = config.formatter
       if name == "clang_format" then
@@ -122,33 +133,30 @@ M.get_mason_list = function()
         name = "sql-formatter"
       end
 
-      table.insert(list, name)
+      add(name)
     end
 
-    -- Add Linters
     if config.linter then
       if type(config.linter) == "table" then
         for _, v in ipairs(config.linter) do
-          table.insert(list, v)
+          add(v)
         end
       else
-        table.insert(list, config.linter)
+        add(config.linter)
       end
     end
 
-    -- Add DAP (Debuggers)
     if config.dap then
-      table.insert(list, config.dap)
+      add(config.dap)
     end
   end
   return list
 end
 
 -- ========================
--- TREESITTER LIST GENERATOR
+-- Treesitter parsers
 -- ========================
 M.get_treesitter_list = function()
-  -- Start with default requirements for Neovim itself
   local list = { "vim", "vimdoc", "query", "markdown", "markdown_inline", "regex", "bash" }
   for _, config in pairs(M.languages) do
     if config.treesitter then

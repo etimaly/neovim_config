@@ -1,13 +1,9 @@
 return {
 	"mfussenegger/nvim-dap",
 	dependencies = {
-		-- UI for the debugger
 		"rcarriga/nvim-dap-ui",
-		-- Virtual text for the debugger (shows values inline)
 		"theHamsta/nvim-dap-virtual-text",
-		-- Bridge between Mason and nvim-dap
 		"jay-babu/mason-nvim-dap.nvim",
-		-- Required for dap-ui
 		"nvim-neotest/nvim-nio",
 	},
 	keys = {
@@ -83,8 +79,6 @@ return {
 		},
 	},
 	config = function()
-		-- 1. PROTECTIVE REQUIRES
-		-- If these fail (e.g., plugin not downloaded yet), the function exits silently
 		local dap_status, dap = pcall(require, "dap")
 		local dapui_status, dapui = pcall(require, "dapui")
 		local mason_dap_status, mason_dap = pcall(require, "mason-nvim-dap")
@@ -93,7 +87,6 @@ return {
 			return
 		end
 
-		-- 2. SETUP UI & VIRTUAL TEXT
 		dapui.setup()
 
 		local vt_status, dap_vt = pcall(require, "nvim-dap-virtual-text")
@@ -101,7 +94,6 @@ return {
 			dap_vt.setup({})
 		end
 
-		-- 3. AUTOMATION: OPEN/CLOSE UI
 		dap.listeners.before.attach.dapui_config = function()
 			dapui.open()
 		end
@@ -115,11 +107,8 @@ return {
 			dapui.close()
 		end
 
-		-- 4. MASON-DAP INTEGRATION
 		if mason_dap_status then
 			mason_dap.setup({
-				-- This will look at what's in your languages.lua
-				-- (provided mason-tool-installer is running)
 				automatic_installation = true,
 
 				handlers = {
@@ -127,25 +116,20 @@ return {
 						mason_dap.default_setup(config)
 					end,
 
-					-- Specialized Python setup to handle different OS paths
+					-- Specialized Python setup to prefer Mason's adapter executable.
 					python = function(config)
-						local path = vim.fn.exepath("python3")
-						if path == "" then
-							path = vim.fn.exepath("python")
-						end
+						local path = vim.fn.exepath("debugpy-adapter")
 
 						if path ~= "" then
 							config.adapters = {
 								type = "executable",
 								command = path,
-								args = { "-m", "debugpy.adapter" },
 							}
 						end
 						mason_dap.default_setup(config)
 					end,
 				},
-				-- ensure_installed is empty here because your
-				-- M.get_mason_list() in languages.lua handles the master list.
+				-- config.languages owns the master install list.
 				ensure_installed = {},
 			})
 		end

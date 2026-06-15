@@ -5,7 +5,7 @@ return {
 	},
 	opts = {
 		window = {
-			backdrop = 0.95, -- shade the background of the other windows
+			backdrop = 0.95,
 			width = 120,
 		},
 	},

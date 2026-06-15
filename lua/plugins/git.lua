@@ -2,7 +2,7 @@ return {
 	{
 		"lewis6991/gitsigns.nvim",
 		event = { "BufReadPre", "BufNewFile" },
-		opts = { -- Using 'opts' is cleaner for simple setups
+		opts = {
 			signs = {
 				add = { text = "▎" },
 				change = { text = "▎" },
@@ -18,11 +18,9 @@ return {
 					vim.keymap.set(mode, l, r, opts)
 				end
 
-				-- Navigation
 				map("n", "]h", gs.next_hunk, { desc = "Next Hunk" })
 				map("n", "[h", gs.prev_hunk, { desc = "Prev Hunk" })
 
-				-- Actions: Use <leader>gh for "Git Hunk" actions
 				map("n", "<leader>ghp", gs.preview_hunk, { desc = "Preview Hunk" })
 				map("n", "<leader>ghs", gs.stage_hunk, { desc = "Stage Hunk" })
 				map("n", "<leader>ghu", gs.undo_stage_hunk, { desc = "Undo Stage Hunk" })
@@ -43,12 +41,11 @@ return {
 		},
 		config = function()
 			require("neogit").setup({
-				-- Integrations make the plugin much more powerful
 				integrations = {
-					diffview = true, -- This is the "secret sauce" for better diffs
+					diffview = true,
 					telescope = true,
 				},
-				kind = "tab", -- Opens Neogit in a new tab (cleaner workflow)
+				kind = "tab",
 			})
 		end,
 		keys = {
@@ -58,6 +55,5 @@ return {
 		},
 	},
 
-	-- Keep Fugitive as a backup for complex 'Git log' or 'Git mergetool' needs
 	{ "tpope/vim-fugitive" },
 }

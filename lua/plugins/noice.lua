@@ -7,7 +7,7 @@ return {
 			{
 				"rcarriga/nvim-notify",
 				opts = {
-					background_colour = "#1e1e2e", -- Catppuccin Mocha Base color to fix transparency warning
+					background_colour = "#1e1e2e",
 				},
 			},
 		},
@@ -50,7 +50,7 @@ return {
 						win_options = { winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" } },
 					},
 				},
-				-- NEW: Filter out annoying, harmless Neovim deprecation warnings
+				-- Filter noisy position encoding warnings.
 				routes = {
 					{
 						filter = {
