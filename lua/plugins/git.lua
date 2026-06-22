@@ -33,6 +33,62 @@ return {
 	},
 
 	{
+		"sindrets/diffview.nvim",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		cmd = {
+			"DiffviewOpen",
+			"DiffviewFileHistory",
+			"DiffviewClose",
+			"DiffviewToggleFiles",
+			"DiffviewFocusFiles",
+			"DiffviewRefresh",
+		},
+		keys = {
+			{ "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diffview Open" },
+			{ "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File History" },
+		},
+		config = function()
+			require("diffview").setup()
+
+			vim.api.nvim_create_user_command("DiffviewClose", function(ctx)
+				if not ctx.bang then
+					local ok, err = pcall(require("diffview").close)
+
+					if not ok then
+						if tostring(err):find("E445", 1, true) then
+							vim.notify(
+								"Diffview has unwritten changes; write buffers or run :DiffviewClose!",
+								vim.log.levels.WARN
+							)
+						else
+							error(err, 0)
+						end
+					end
+
+					return
+				end
+
+				local lib = require("diffview.lib")
+				if not lib.get_current_view() then
+					return
+				end
+
+				local tabnr = vim.fn.tabpagenr()
+
+				if #vim.api.nvim_list_tabpages() == 1 then
+					vim.cmd("tabnew")
+				end
+
+				vim.cmd("tabclose! " .. tabnr)
+
+				vim.schedule(function()
+					lib.dispose_stray_views()
+				end)
+			end, { bang = true, force = true })
+		end,
+	},
+
+	{
 		"NeogitOrg/neogit",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
@@ -50,8 +106,6 @@ return {
 		end,
 		keys = {
 			{ "<leader>gg", "<cmd>Neogit<cr>", desc = "Neogit Status" },
-			{ "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diffview Open" },
-			{ "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File History" },
 		},
 	},
 

@@ -2,6 +2,26 @@ local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
 
 local format_group = augroup("LspFormatting", { clear = true })
+local format_clients = {
+	["null-ls"] = true,
+	ruff = true,
+	lua_ls = true,
+	hls = true,
+	zls = true,
+	taplo = true,
+	rust_analyzer = true,
+}
+
+local function set_indent(width)
+	vim.opt_local.shiftwidth = width
+	vim.opt_local.tabstop = width
+	vim.opt_local.softtabstop = width
+	vim.opt_local.expandtab = true
+
+	vim.keymap.set("i", "<Tab>", function()
+		return (" "):rep(vim.fn.shiftwidth())
+	end, { buffer = true, expr = true, desc = "Insert indent spaces" })
+end
 
 autocmd("LspAttach", {
 	group = format_group,
@@ -67,7 +87,7 @@ autocmd("LspAttach", {
 					async = false,
 					timeout = 500,
 					filter = function(c)
-						return c.name == "null-ls" or c.name == "ruff" or c.name == "lua_ls" or c.name == "hls" or c.name == "zls" or c.name == "taplo"
+						return format_clients[c.name] == true
 					end,
 				})
 			end,
@@ -79,10 +99,7 @@ autocmd("LspAttach", {
 autocmd("FileType", {
 	pattern = { "lua", "javascript", "typescript", "javascriptreact", "typescriptreact", "html", "css", "json", "yaml", "toml" },
 	callback = function()
-		vim.opt_local.shiftwidth = 2
-		vim.opt_local.tabstop = 2
-		vim.opt_local.softtabstop = 2
-		vim.opt_local.expandtab = true
+		set_indent(2)
 	end,
 })
 
@@ -90,9 +107,6 @@ autocmd("FileType", {
 autocmd("FileType", {
 	pattern = { "python", "c", "cpp", "rust", "go", "cs", "zig" },
 	callback = function()
-		vim.opt_local.shiftwidth = 4
-		vim.opt_local.tabstop = 4
-		vim.opt_local.softtabstop = 4
-		vim.opt_local.expandtab = true
+		set_indent(4)
 	end,
 })

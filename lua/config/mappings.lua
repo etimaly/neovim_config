@@ -38,14 +38,10 @@ map("v", "<C-k>", ":m '<-2<cr>gv=gv", { desc = "Move selection up" })
 -- ==========================================
 -- Word jumping
 -- ==========================================
-map("n", "<C-Left>", "b", { desc = "Jump word back" })
-map("n", "<C-Right>", "w", { desc = "Jump word forward" })
-
-map("i", "<C-Left>", "<C-o>b", { desc = "Jump word back" })
-map("i", "<C-Right>", "<C-o>w", { desc = "Jump word forward" })
 map("i", "<C-Up>", "<C-o>{", { desc = "Jump paragraph up" })
 map("i", "<C-Down>", "<C-o>}", { desc = "Jump paragraph down" })
 map("i", "<C-BS>", "<C-w>", { desc = "Delete previous word" })
+map("i", "<C-H>", "<C-w>", { desc = "Delete previous word" })
 
 -- ==========================================
 -- Clipboard / Void
