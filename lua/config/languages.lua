@@ -63,6 +63,11 @@ M.languages = {
     treesitter = "toml",
     lsp = "taplo",
   },
+  markdown = {
+    treesitter = { "markdown", "markdown_inline" },
+    lsp = "marksman",     -- 'markdown_oxide' is another great option
+    formatter = "prettier", -- 'markdownlint' is also good if you want stricter linting
+  },
 
   -- ========================
   -- Compiled / Data
@@ -157,10 +162,16 @@ end
 -- Treesitter parsers
 -- ========================
 M.get_treesitter_list = function()
-  local list = { "vim", "vimdoc", "query", "markdown", "markdown_inline", "regex", "bash" }
+  local list = { "vim", "vimdoc", "query", "regex", "bash" }
   for _, config in pairs(M.languages) do
     if config.treesitter then
-      table.insert(list, config.treesitter)
+      if type(config.treesitter) == "table" then
+        for _, ts in ipairs(config.treesitter) do
+          table.insert(list, ts)
+        end
+      elseif type(config.treesitter) == "string" then
+        table.insert(list, config.treesitter)
+      end
     end
   end
   return list

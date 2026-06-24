@@ -5,6 +5,13 @@ require("config.mappings")
 require("config.options")
 require("config.autocmds")
 
+-- Load Neovim's bundled Lua parser before nvim-treesitter can shadow it.
+-- Neovim 0.12 runtime Lua queries require parser fields older installed parsers lack.
+local bundled_lua_parser = vim.api.nvim_get_runtime_file("parser/lua.*", false)[1]
+if bundled_lua_parser then
+	pcall(vim.treesitter.language.add, "lua", { path = bundled_lua_parser })
+end
+
 require("config.lazy")
 
 vim.opt.clipboard = "unnamedplus"

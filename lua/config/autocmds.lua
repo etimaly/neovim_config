@@ -17,10 +17,6 @@ local function set_indent(width)
 	vim.opt_local.tabstop = width
 	vim.opt_local.softtabstop = width
 	vim.opt_local.expandtab = true
-
-	vim.keymap.set("i", "<Tab>", function()
-		return (" "):rep(vim.fn.shiftwidth())
-	end, { buffer = true, expr = true, desc = "Insert indent spaces" })
 end
 
 autocmd("LspAttach", {
