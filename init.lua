@@ -9,7 +9,7 @@ require("config.autocmds")
 -- Neovim 0.12 runtime Lua queries require parser fields older installed parsers lack.
 local bundled_lua_parser = vim.api.nvim_get_runtime_file("parser/lua.*", false)[1]
 if bundled_lua_parser then
-	pcall(vim.treesitter.language.add, "lua", { path = bundled_lua_parser })
+  pcall(vim.treesitter.language.add, "lua", { path = bundled_lua_parser })
 end
 
 require("config.lazy")
@@ -24,5 +24,5 @@ vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
 
 vim.diagnostic.config({
-	float = { border = border },
+  float = { border = border },
 })

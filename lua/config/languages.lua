@@ -11,14 +11,6 @@ M.languages = {
     dap = "debugpy",
   },
 
-  cs = {
-    treesitter = "c_sharp",
-    -- roslyn.nvim handles setup outside lspconfig.
-    lsp = "roslyn",
-    formatter = "csharpier",
-    dap = "netcoredbg",
-  },
-
   -- ========================
   -- Core / Web
   -- ========================
@@ -86,10 +78,6 @@ M.languages = {
     lsp = "clangd",
     formatter = "clang_format",
     dap = "codelldb",
-  },
-  haskell = {
-    treesitter = "haskell",
-    lsp = "hls",
   },
   sql = {
     treesitter = "sql",

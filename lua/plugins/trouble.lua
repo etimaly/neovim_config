@@ -1,52 +1,38 @@
 return {
-	"folke/trouble.nvim",
-	dependencies = { "nvim-tree/nvim-web-devicons" },
-	keys = {
-		{
-			"<leader>xx",
-			function()
-				require("trouble").toggle("diagnostics")
-			end,
-			desc = "Diagnostics (Trouble)",
-		},
-		{
-			"<leader>xX",
-			function()
-				require("trouble").toggle({ mode = "diagnostics", filter = { buf = 0 } })
-			end,
-			desc = "Buffer Diagnostics (Trouble)",
-		},
-		{
-			"<leader>cs",
-			function()
-				require("trouble").toggle("symbols")
-			end,
-			desc = "Symbols (Trouble)",
-		},
-		{
-			"<leader>cl",
-			function()
-				require("trouble").toggle({ mode = "lsp", focus = false, win = { position = "right" } })
-			end,
-			desc = "LSP Definitions / references / ... (Trouble)",
-		},
-		{
-			"<leader>xL",
-			function()
-				require("trouble").toggle("loclist")
-			end,
-			desc = "Location List (Trouble)",
-		},
-		{
-			"<leader>xQ",
-			function()
-				require("trouble").toggle("qflist")
-			end,
-			desc = "Quickfix List (Trouble)",
-		},
-	},
-	opts = {
-		auto_close = true,
-		restore_focus = true,
-	},
+  "folke/trouble.nvim",
+  dependencies = { "nvim-tree/nvim-web-devicons" },
+  opts = {}, -- for default options, refer to the configuration section for custom setup.
+  cmd = "Trouble",
+  keys = {
+    {
+      "<leader>xx",
+      "<cmd>Trouble diagnostics toggle<cr>",
+      desc = "Diagnostics (Trouble)",
+    },
+    {
+      "<leader>xX",
+      "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+      desc = "Buffer Diagnostics (Trouble)",
+    },
+    {
+      "<leader>cs",
+      "<cmd>Trouble symbols toggle focus=false<cr>",
+      desc = "Symbols (Trouble)",
+    },
+    {
+      "<leader>cl",
+      "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+      desc = "LSP Definitions / references / ... (Trouble)",
+    },
+    {
+      "<leader>xL",
+      "<cmd>Trouble loclist toggle<cr>",
+      desc = "Location List (Trouble)",
+    },
+    {
+      "<leader>xQ",
+      "<cmd>Trouble qflist toggle<cr>",
+      desc = "Quickfix List (Trouble)",
+    },
+  },
 }

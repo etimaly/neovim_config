@@ -115,19 +115,6 @@ return {
 					function(config)
 						mason_dap.default_setup(config)
 					end,
-
-					-- Specialized Python setup to prefer Mason's adapter executable.
-					python = function(config)
-						local path = vim.fn.exepath("debugpy-adapter")
-
-						if path ~= "" then
-							config.adapters = {
-								type = "executable",
-								command = path,
-							}
-						end
-						mason_dap.default_setup(config)
-					end,
 				},
 				-- config.languages owns the master install list.
 				ensure_installed = {},

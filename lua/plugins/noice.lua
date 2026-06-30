@@ -50,26 +50,6 @@ return {
 						win_options = { winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" } },
 					},
 				},
-				-- Filter noisy position encoding warnings.
-				routes = {
-					{
-						filter = {
-							event = "msg_show",
-							any = {
-								{ find = "position_encoding param is required" },
-							},
-						},
-						opts = { skip = true },
-					},
-					{
-						filter = {
-							event = "notify",
-							warning = true,
-							find = "position_encoding param is required",
-						},
-						opts = { skip = true },
-					},
-				},
 			})
 		end,
 	},

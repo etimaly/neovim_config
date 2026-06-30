@@ -1,4 +1,3 @@
--- LSP server overrides
 local server_settings = {
     pyright = {
         settings = {
@@ -14,12 +13,6 @@ local server_settings = {
     },
 }
 
-local function force_utf16_capabilities(capabilities)
-    capabilities.general = capabilities.general or {}
-    capabilities.general.positionEncodings = { "utf-16" }
-    capabilities.offsetEncoding = { "utf-16" }
-end
-
 return {
     "williamboman/mason.nvim",
     dependencies = {
@@ -30,18 +23,6 @@ return {
         "hrsh7th/nvim-cmp",
     },
     config = function()
-        -- ==========================================================
-        -- LSP UI
-        -- ==========================================================
-        local handlers = {
-            ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
-            ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
-        }
-
-        for method, handler in pairs(handlers) do
-            vim.lsp.handlers[method] = handler
-        end
-
         -- ==========================================================
         -- Mason
         -- ==========================================================
@@ -82,16 +63,16 @@ return {
             end
         end
 
-        force_utf16_capabilities(capabilities)
+        local configured_servers = {}
 
         local function setup_server(server_name)
-            if server_name == "roslyn" then
+            if server_name == "roslyn" or configured_servers[server_name] then
                 return
             end
+            configured_servers[server_name] = true
 
             local config = {
                 capabilities = vim.deepcopy(capabilities),
-                offset_encoding = "utf-16",
             }
             local custom = server_settings[server_name]
 

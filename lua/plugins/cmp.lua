@@ -14,7 +14,6 @@ return {
 		local cmp_ok, cmp = pcall(require, "cmp")
 		local luasnip_ok, luasnip = pcall(require, "luasnip")
 		local lspkind_ok, lspkind = pcall(require, "lspkind")
-		local completion_item_kind = vim.lsp.protocol.CompletionItemKind
 
 		if not cmp_ok then
 			return
@@ -22,45 +21,6 @@ return {
 
 		if luasnip_ok then
 			require("luasnip.loaders.from_vscode").lazy_load()
-		end
-
-		local function trigger_signature_help()
-			vim.defer_fn(function()
-				for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
-					if client:supports_method("textDocument/signatureHelp") then
-						vim.lsp.buf.signature_help({ border = "rounded" })
-						return
-					end
-				end
-			end, 50)
-		end
-
-		local function complete_python_call(entry)
-			if vim.bo.filetype ~= "python" then
-				return
-			end
-
-			local item = entry:get_completion_item()
-			if item.insertTextFormat == vim.lsp.protocol.InsertTextFormat.Snippet then
-				return
-			end
-
-			local is_call = item.kind == completion_item_kind.Function
-				or item.kind == completion_item_kind.Method
-				or item.kind == completion_item_kind.Constructor
-
-			if not is_call then
-				return
-			end
-
-			local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-			local line = vim.api.nvim_get_current_line()
-			if line:sub(col + 1, col + 1) ~= "(" then
-				vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, { "()" })
-				vim.api.nvim_win_set_cursor(0, { row, col + 1 })
-			end
-
-			trigger_signature_help()
 		end
 
 		cmp.setup({
@@ -126,11 +86,5 @@ return {
 				{ name = "path" },
 			}),
 		})
-
-		cmp.event:on("confirm_done", function(event)
-			if event.entry and event.entry.source.name == "nvim_lsp" then
-				complete_python_call(event.entry)
-			end
-		end)
 	end,
 }
